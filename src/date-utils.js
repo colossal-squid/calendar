@@ -1,6 +1,4 @@
-const formattedDateRange = [];
 const startDate = '2019-02-03 09:00:00';
-const date = new Date(startDate);
 
 function formatDate(date) {
     const minutes = date.getMinutes().toString().padStart(2,'0');
@@ -9,11 +7,17 @@ function formatDate(date) {
     return {date: `${hours}:${minutes}`, amPm: amPm};
 }
 
-formattedDateRange.push(formatDate(date));
-for (let i=0; i<=23; i++) {
-    date.setTime( date.getTime() + 1000 * 60 * 30 );
-    formattedDateRange.push(formatDate(date));
-}
+const formattedDateRange = (()=>{
+    const res = [];
+    const date = new Date(startDate);
+    res.push(formatDate(date));
+    for (let i=0; i<=23; i++) {
+        date.setTime( date.getTime() + 1000 * 60 * 30 );
+        res.push(formatDate(date));
+    }
+    return res;
+})();
+
 export {
     formattedDateRange
 }
