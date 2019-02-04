@@ -34,8 +34,14 @@
     background: white;
     border: 1px solid rgb(217, 217, 217);
     position: absolute;
-    padding: 10px;
+    padding: 3px 10px;
     box-sizing: border-box;
+    overflow: hidden;
+}
+
+.calendarItem h3, .calendarItem p {
+    font-size: 12px;
+    margin: 0;
 }
 
 .chevron {

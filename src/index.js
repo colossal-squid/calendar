@@ -94,5 +94,12 @@ function createCalendar() {
       {start: 560, end: 620}, 
       {start: 610, end: 670} 
   ];
+  const test2 = [ 
+    {start: 30, end: 65}, 
+    {start: 64, end: 100}, 
+    {start: 64, end: 120}, 
+    {start: 64, end: 180}, 
+   
+  ];
 
   layOutDay(test);
