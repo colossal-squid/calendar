@@ -96,18 +96,7 @@ function layOutDay(events) {
 }
 
 createCalendar();
-const test = [
-    { start: 30, end: 150 },
-    { start: 540, end: 600 },
-    { start: 560, end: 620 },
-    { start: 610, end: 670 }
-];
-const test2 = [
-    { start: 30, end: 65 },
-    { start: 64, end: 100 },
-    { start: 64, end: 120 },
-    { start: 64, end: 180 },
 
-];
-
-layOutDay(test);
+export {
+    layOutDay
+}
