@@ -1,3 +1,46 @@
+_my comments block goes here:_
+
+Hi Guys! Cool assignment, i liked doing it.
+Sorry for the delay - had a lotta other assignments on myplate
+
+Run the app typin: `npm install && npm start`
+and then just open http://localhost:8080
+
+The output in dist `main.js` can be used without an http server,
+so I think i've passed the `no-server` requirements
+
+The datasets that proven to work are:
+
+```
+layOutDay([
+    { start: 30, end: 150 },
+    { start: 540, end: 600 },
+    { start: 560, end: 620 },
+    { start: 610, end: 670 }
+];
+
+layOutDay([
+   { start: 30, end: 65 },
+   { start: 64, end: 100 },
+   { start: 64, end: 120 },
+   { start: 64, end: 180 },
+];
+```
+
+and here's one breaking the positioning:
+```
+layOutDay([
+    { start: 78, end: 120 },
+    { start: 100, end: 140 },
+    { start: 120, end: 160 },
+    { start: 130, end: 180 },  
+])
+```
+
+I decided i won't debug it further tonight + you've been waiting for a week already. Hope we can talk about it in person.
+
+Best regards
+Roman
 # Calendar challenge
 Given a set of events, each with a start time and end time, render the events on a single day
 calendar (similar to Outlook, Calendar.app, and Google Calendar). 
