@@ -1,23 +1,11 @@
 import { formattedDateRange } from './date-utils';
+import { Record } from './record';
+import { PADDING } from './config';
 import styles from "./styles.module.css";
 
-const ITEM_CONTENT = `
-<span class="${styles.chevron}"></span>
-<h3>Sample item</h3>
-<p>Sample location</p>
-`;
-
-// 720 is 60 minutes * 12 hours, what a coincidence.
-// 1px is 1 minute then
-const PADDING = 10;
-const TOTAL_HEIGHT_PX = 720;
-const TOTAL_WIDTH_PX = 600;
-// so we can scale sometime
-const MINUTE_TO_PX = TOTAL_HEIGHT_PX / (60 * 12);
-
 function generateDateScale() {
-    return formattedDateRange.map(m=>{
-        let formatted =`<span>${m.date}</span>`;
+    return formattedDateRange.map(m => {
+        let formatted = `<span>${m.date}</span>`;
         if (/.{2}:00/.test(m.date)) {
             formatted += (' ' + m.amPm);
         }
@@ -34,72 +22,92 @@ function createCalendar() {
     content.className = styles.content;
     dateScale.className = styles.dateScale;
     dateScale.innerHTML = generateDateScale();
-  }
-  
-  function eventsIntersect(a, b) {
-    return (a.start > b.start && a.start < b.end) || (a.end > b.start && a.end < b.end)
-  }
+}
 
-  function getIntersectingEventsCount(event, events) {
-    let intersecting = events.filter((i)=>{
+function eventsIntersect(a, b) {
+    return (a.start >= b.start && a.start <= b.end) || (a.end >= b.start && a.end <= b.end)
+}
+
+function range(N) {
+    const range = [];
+    for (let i=0; i<=N; i++) {
+        range.push(i);
+    }
+    return range;
+}
+
+function getEventIntersections(event, events) {
+    return events.filter((i) => {
         return i !== event && eventsIntersect(event, i)
     });
-    if (intersecting.length > 1) {
-        // if intersections of event do not intersect between each other 
-        // - they're not SIMULTANEOUS intersections
-        var filtered = [];
-        intersecting.forEach( a => {
-            if (filtered.length && !filtered.find( b => eventsIntersect(a, b) )) {
-                return;
-            }
-            filtered.push(a);
-        } );
-        intersecting = filtered;
-    }
-    return intersecting.length;
-  }
+}
 
-  function layOutDay (events) {
+function getSimultaneousIntersections(event, events) {
+    // get count of events intersecting with event
+    let intersecting = getEventIntersections(event, events);
+    if (intersecting.length <= 1) {
+        return intersecting;
+    }
+    // reduce it to the max count of simultaneous intersections
+    return intersecting.filter(el=>{
+        return getEventIntersections(el, intersecting).length > 0
+    });
+}
+
+function getMaxSimultaneousIntersectionsCount(event, events) {
+    // get count of events intersecting with event
+    let intersecting = getEventIntersections(event, events);
+    if (intersecting.length <= 1) {
+        return intersecting.length;
+    }
+    // reduce it to the max count of simultaneous intersections
+    const simultaneous = intersecting.map( item => getEventIntersections(item, intersecting).length );
+    return Math.max( 
+        ...simultaneous
+    ) + 1;
+}
+
+function layOutDay(events) {
     // clear 
     const content = document.querySelector('section:last-child');
     content.innerHTML = "";
 
     let rendered = [];
-    events.forEach( (e) => {
-        const el = document.createElement('div');
-        const count = getIntersectingEventsCount(e, events);
-        const widthPx = (TOTAL_WIDTH_PX / (count + 1));
-        el.innerHTML = ITEM_CONTENT;
-        el.className = styles.calendarItem;
-        el.style.height = ((e.end - e.start) * MINUTE_TO_PX) + 'px';
-        el.style.width = widthPx + 'px';
+    events.forEach((e) => {
+        const maxSimultaneous = getMaxSimultaneousIntersectionsCount(
+            e, events
+        );
+        const rec = new Record(e, maxSimultaneous);
+        const el = rec.el;
 
-        el.style.top = (e.start * MINUTE_TO_PX) + 'px';
-        const count2 = getIntersectingEventsCount(e, rendered.filter(e=>!e.intersections));
-        if ( count2 > 0 ) {
-            el.style.left = (PADDING + widthPx * count2) + 'px';
-            e.intersections = count2;
-        } else {
-            el.style.left = `${PADDING}px`;
-        }
+        const otherRecordPositions = getSimultaneousIntersections(
+            e, rendered
+        ).map(item=>item.position);
+        // trying to fill-in place in left first
+        e.position = maxSimultaneous > 0 ?  Math.min(
+            ...range(maxSimultaneous).filter(
+                (pos)=>!otherRecordPositions.includes(pos)
+            )
+        ) : 0;
+        el.style.left = (PADDING + e.position * rec.width) + 'px';        
         content.appendChild(el);
         rendered.push(e);
     });
-  }
+}
 
-  createCalendar();
-  const test = [ 
-      {start: 30, end: 150}, 
-      {start: 540, end: 600}, 
-      {start: 560, end: 620}, 
-      {start: 610, end: 670} 
-  ];
-  const test2 = [ 
-    {start: 30, end: 65}, 
-    {start: 64, end: 100}, 
-    {start: 64, end: 120}, 
-    {start: 64, end: 180}, 
-   
-  ];
+createCalendar();
+const test = [
+    { start: 30, end: 150 },
+    { start: 540, end: 600 },
+    { start: 560, end: 620 },
+    { start: 610, end: 670 }
+];
+const test2 = [
+    { start: 30, end: 65 },
+    { start: 64, end: 100 },
+    { start: 64, end: 120 },
+    { start: 64, end: 180 },
 
-  layOutDay(test);
+];
+
+layOutDay(test);
